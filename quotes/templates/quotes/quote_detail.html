@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ quote.text|truncatechars:50 }} - Central Perk{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Цитата -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <blockquote class="blockquote">
+                    <p class="h3">"{{ quote.text }}"</p>
+                    <footer class="blockquote-footer">
+                        <a href="#">{{ quote.character.name }}</a>
+                        {% if quote.episode %}
+                            ({{ quote.episode }})
+                        {% endif %}
+                        — <cite>{{ quote.author.username }}</cite>
+                    </footer>
+                </blockquote>
+                
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <div>
+                        <a href="{% url 'quotes:like' pk=quote.pk %}" class="btn btn-outline-danger">
+                            ❤️ {{ quote.get_likes_count }} лайков
+                        </a>
+                        <span class="btn btn-outline-secondary">
+                            💬 {{ quote.get_comments_count }} комментариев
+                        </span>
+                    </div>
+                    
+                    {% if user == quote.author %}
+                        <div>
+                            <a href="{% url 'quotes:edit' pk=quote.pk %}" class="btn btn-warning">
+                                <i class="bi bi-pencil"></i> Редактировать
+                            </a>
+                            <a href="{% url 'quotes:delete' pk=quote.pk %}" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Удалить
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Комментарии -->
+        <div class="card">
+            <div class="card-header">
+                <h4>💬 Комментарии ({{ quote.get_comments_count }})</h4>
+            </div>
+            <div class="card-body">
+                {% if comments %}
+                    {% for comment in comments %}
+                        <div class="mb-3 pb-3 border-bottom">
+                            <strong>{{ comment.user.username }}</strong>
+                            <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+                            <p class="mt-2">{{ comment.content }}</p>
+                            
+                            {% if user == comment.user %}
+                                <a href="{% url 'discussions:comment_delete' pk=comment.pk %}" 
+                                   class="btn btn-sm btn-outline-danger">
+                                    Удалить
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Пока нет комментариев. Будьте первым!</p>
+                {% endif %}
+            </div>
+            
+            <!-- Форма комментария -->
+            {% if user.is_authenticated %}
+                <div class="card-footer">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form.content }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Отправить
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="card-footer">
+                    <p class="mb-0">
+                        <a href="{% url 'accounts:login' %}">Войдите</a>, чтобы оставить комментарий.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Боковая панель -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>О персонаже</h5>
+            </div>
+            <div class="card-body">
+                {% if quote.character.photo %}
+                    <img src="{{ quote.character.photo.url }}" class="img-fluid mb-3" alt="{{ quote.character.name }}">
+                {% endif %}
+                <h5>{{ quote.character.name }}</h5>
+                <p><small>Актер: {{ quote.character.actor_name }}</small></p>
+                <p>{{ quote.character.description }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

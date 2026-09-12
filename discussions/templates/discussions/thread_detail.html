@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ thread.title }} - Central Perk{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h1>{{ thread.title }}</h1>
+        <small class="text-muted">
+            Автор: <strong>{{ thread.user.username }}</strong> |
+            {{ thread.created_at|date:"d.m.Y H:i" }} |
+            👁️ {{ thread.views }} просмотров
+        </small>
+    </div>
+    <div class="card-body">
+        <p>{{ thread.content|linebreaks }}</p>
+        
+        {% if thread.episode %}
+            <p><small>Связанная серия: {{ thread.episode }}</small></p>
+        {% endif %}
+    </div>
+    {% if user == thread.user %}
+        <div class="card-footer">
+            <a href="{% url 'discussions:edit' pk=thread.pk %}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Редактировать
+            </a>
+            <a href="{% url 'discussions:delete' pk=thread.pk %}" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Удалить
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Комментарии -->
+<div class="card">
+    <div class="card-header">
+        <h4>💬 Комментарии ({{ thread.get_comments_count }})</h4>
+    </div>
+    <div class="card-body">
+        {% if comments %}
+            {% for comment in comments %}
+                <div class="mb-3 pb-3 border-bottom">
+                    <strong>{{ comment.user.username }}</strong>
+                    <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+                    <p class="mt-2">{{ comment.content }}</p>
+                    
+                    {% if user == comment.user %}
+                        <a href="{% url 'discussions:comment_delete' pk=comment.pk %}" 
+                           class="btn btn-sm btn-outline-danger">
+                            Удалить
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">Пока нет комментариев.</p>
+        {% endif %}
+    </div>
+    
+    {% if user.is_authenticated %}
+        <div class="card-footer">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.content }}
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-send"></i> Отправить
+                </button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

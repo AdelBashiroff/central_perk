@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Цитаты - Central Perk{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-chat-quote"></i> Цитаты из "Друзей"</h1>
+    {% if user.is_authenticated %}
+        <a href="{% url 'quotes:create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Добавить цитату
+        </a>
+    {% endif %}
+</div>
+
+<!-- Поиск -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-8">
+                <input type="text" 
+                       name="search" 
+                       class="form-control" 
+                       placeholder="Поиск по тексту или персонажу..."
+                       value="{{ search_query }}">
+            </div>
+            <div class="col-md-3">
+                <select name="character" class="form-select">
+                    <option value="">Все персонажи</option>
+                    <!-- Здесь можно вывести список персонажей -->
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Список цитат -->
+{% if quotes %}
+    <div class="row">
+        {% for quote in quotes %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <blockquote class="blockquote">
+                            <p>"{{ quote.text }}"</p>
+                            <footer class="blockquote-footer">
+                                <a href="#">
+                                    {{ quote.character.name }}
+                                </a>
+                                {% if quote.episode %}
+                                    ({{ quote.episode }})
+                                {% endif %}
+                            </footer>
+                        </blockquote>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <div>
+                            <a href="{% url 'quotes:like' pk=quote.pk %}" class="btn btn-sm btn-outline-danger">
+                                ❤️ {{ quote.get_likes_count }}
+                            </a>
+                            <span class="btn btn-sm btn-outline-secondary">
+                                💬 {{ quote.get_comments_count }}
+                            </span>
+                        </div>
+                        <a href="{% url 'quotes:detail' pk=quote.pk %}" class="btn btn-sm btn-primary">
+                            Подробнее →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> Цитат не найдено.
+        {% if user.is_authenticated %}
+            <a href="{% url 'quotes:create' %}">Добавьте первую!</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

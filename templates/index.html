@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная - Central Perk{% endblock %}
+
+{% block content %}
+<!-- Приветствие -->
+<div class="jumbotron bg-light p-5 rounded mb-4 text-center">
+    <h1 class="display-4">☕ Добро пожаловать в Central Perk!</h1>
+    <p class="lead">Платформа для фанатов сериала "Друзья"</p>
+    <hr class="my-4">
+    <p>"So no one told you life was gonna be this way..." 🎵</p>
+    {% if not user.is_authenticated %}
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">
+            Присоединиться
+        </a>
+    {% endif %}
+</div>
+
+<div class="row">
+    <!-- Последние цитаты -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-chat-quote"></i> Последние цитаты
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if latest_quotes %}
+                    {% for quote in latest_quotes %}
+                        <blockquote class="blockquote mb-4">
+                            <p>"{{ quote.text }}"</p>
+                            <footer class="blockquote-footer">
+                                {{ quote.character.name }}
+                                {% if quote.episode %}
+                                    ({{ quote.episode }})
+                                {% endif %}
+                            </footer>
+                        </blockquote>
+                    {% endfor %}
+                {% else %}
+                    <p>Пока нет цитат.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'quotes:list' %}" class="btn btn-sm btn-outline-primary">
+                    Все цитаты →
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Последние обсуждения -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-people"></i> Последние обсуждения
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if latest_threads %}
+                    {% for thread in latest_threads %}
+                        <div class="mb-3">
+                            <h5>
+                                <a href="{% url 'discussions:detail' pk=thread.pk %}">
+                                    {{ thread.title }}
+                                </a>
+                            </h5>
+                            <small class="text-muted">
+                                Автор: {{ thread.user.username }} |
+                                {{ thread.created_at|date:"d.m.Y" }} |
+                                💬 {{ thread.get_comments_count }} |
+                                👁️ {{ thread.views }}
+                            </small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Пока нет обсуждений.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'discussions:list' %}" class="btn btn-sm btn-outline-primary">
+                    Все обсуждения →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

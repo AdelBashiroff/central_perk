@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль - Central Perk{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" class="rounded-circle mb-3" 
+                         style="width: 150px; height: 150px; object-fit: cover;" alt="Avatar">
+                {% else %}
+                    <i class="bi bi-person-circle" style="font-size: 150px;"></i>
+                {% endif %}
+                <h3>{{ user.username }}</h3>
+                <p>{{ user.email }}</p>
+                {% if user.favorite_character %}
+                    <p>Любимый персонаж: <strong>{{ user.get_favorite_character_display }}</strong></p>
+                {% endif %}
+                <p>{{ user.bio }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>✏️ Редактировать профиль</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <button type="submit" class="btn btn-primary">
+                        Сохранить изменения
+                    </button>
+                    <a href="{% url 'accounts:password_change' %}" class="btn btn-warning">
+                        Сменить пароль
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
