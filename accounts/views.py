@@ -45,7 +45,7 @@ def profile_view(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Профиль обновлен!')
-            return redirect('profile')
+            return redirect('accounts:profile')
     else:
         form = CustomUserChangeForm(instance=user)
     

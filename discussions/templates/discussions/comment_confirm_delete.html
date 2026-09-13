@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Удаление комментария - Central Perk{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3>⚠️ Подтверждение удаления</h3>
+            </div>
+            <div class="card-body">
+                <p>Вы уверены, что хотите удалить комментарий?</p>
+                
+                <blockquote class="blockquote">
+                    <p>{{ comment.content }}</p>
+                    <footer class="blockquote-footer">
+                        {{ comment.user.username }}
+                        <small class="text-muted">
+                            {{ comment.created_at|date:"d.m.Y H:i" }}
+                        </small>
+                    </footer>
+                </blockquote>
+                
+                <p class="text-danger">Это действие нельзя отменить!</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Да, удалить
+                    </button>
+                    <a href="{% url 'discussions:detail' pk=comment.thread.pk %}" class="btn btn-secondary">
+                        Отмена
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

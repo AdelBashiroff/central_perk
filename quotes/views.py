@@ -6,6 +6,10 @@ from .models import Quote
 from .forms import QuoteForm
 from discussions.models import Comment
 from discussions.forms import CommentForm
+from django.contrib.auth import get_user_model
+from notifications.utils import send_notification
+
+User = get_user_model()
 
 
 def quote_list(request):
