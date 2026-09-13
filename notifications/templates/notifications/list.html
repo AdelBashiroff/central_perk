@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Уведомления - Central Perk{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>🔔 Уведомления</h1>
+    {% if notifications %}
+        <a href="{% url 'notifications:mark_all_read' %}" class="btn btn-secondary">
+            Прочитать все
+        </a>
+    {% endif %}
+</div>
+
+<div id="notifications-list">
+    {% for notification in notifications %}
+        <div class="card mb-2 {% if not notification.is_read %}border-primary{% endif %}">
+            <div class="card-body">
+                <p class="mb-1">{{ notification.message }}</p>
+                <small class="text-muted">
+                    {{ notification.created_at|date:"d.m.Y H:i" }}
+                </small>
+                
+                {% if notification.link %}
+                    <a href="{{ notification.link }}" class="btn btn-sm btn-primary">
+                        Перейти
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Уведомлений пока нет.
+        </div>
+    {% endfor %}
+</div>
+
+<!-- WebSocket -->
+<script>
+    const notificationSocket = new WebSocket(
+        'ws://' + window.location.host + '/ws/notifications/'
+    );
+    
+    notificationSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log('Новое уведомление:', data);
+        
+        // Добавляем в список
+        const list = document.getElementById('notifications-list');
+        const card = document.createElement('div');
+        card.className = 'card mb-2 border-primary';
+        card.innerHTML = `
+            <div class="card-body">
+                <p class="mb-1">${data.message}</p>
+                <small class="text-muted">${data.created_at}</small>
+            </div>
+        `;
+        list.prepend(card);
+        
+        // Показываем уведомление
+        alert('Новое уведомление: ' + data.message);
+    };
+    
+    notificationSocket.onclose = function(e) {
+        console.error('WebSocket closed');
+    };
+</script>
+{% endblock %}

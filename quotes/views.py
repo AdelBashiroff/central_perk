@@ -37,30 +37,10 @@ def quote_list(request):
 
 
 def quote_detail(request, pk):
-    """
-    Детальная страница цитаты.
-    Показывает цитату, комментарии и форму для добавления комментария.
-    """
     quote = get_object_or_404(Quote, pk=pk)
-    comments = quote.comments.filter(parent=None).order_by('created_at')
-    
-    # Форма для комментария
-    if request.method == 'POST' and request.user.is_authenticated:
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.quote = quote
-            comment.author = request.user
-            comment.save()
-            messages.success(request, 'Комментарий добавлен!')
-            return redirect('quotes:detail', pk=quote.pk)
-    else:
-        form = CommentForm()
     
     context = {
         'quote': quote,
-        'comments': comments,
-        'form': form,
     }
     return render(request, 'quotes/quote_detail.html', context)
 
@@ -77,7 +57,16 @@ def quote_create(request):
             quote = form.save(commit=False)
             quote.author = request.user
             quote.save()
-            messages.success(request, 'Цитата успешно создана!')
+            
+            # Отправляем уведомления всем (кроме автора)
+            for user in User.objects.exclude(id=request.user.id)[:10]:
+                send_notification(
+                    user=user,
+                    notification_type='new_quote',
+                    message=f'{request.user.username} добавил новую цитату!',
+                    link=f'/quotes/{quote.pk}/'
+                )
+            
             return redirect('quotes:detail', pk=quote.pk)
     else:
         form = QuoteForm()

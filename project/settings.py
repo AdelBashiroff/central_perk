@@ -13,12 +13,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'web']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'web', 'abc123.ngrok.io']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -34,20 +35,44 @@ INSTALLED_APPS = [
     'quotes.apps.QuotesConfig',
     'reviews.apps.ReviewsConfig',
     'discussions.apps.DiscussionsConfig',
+    'notifications.apps.NotificationsConfig',
     'friends.apps.FriendsConfig',
-    'chat.apps.ChatConfig',
     'api.apps.ApiConfig',
 
     'drf_spectacular', # для Swagger документации
     'allauth',   # OAuth2
     'allauth.account',
     'allauth.socialaccount',
+    'channels',
     'allauth.socialaccount.providers.github',  # OAuth GitHub
+    'allauth.socialaccount.providers.google',      # ← Google
     'dj_rest_auth',
     'dj_rest_auth.registration',              # dj-rest-auth
     'rest_framework.authtoken',
     'rest_framework'
 ]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'github': {
+        'APP': {
+            'client_id': os.getenv('GITHUB_CLIENT_ID'),
+            'secret': os.getenv('GITHUB_SECRET'),
+        }
+    },
+    'google': {                                      
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'APP': {
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_SECRET'),
+        }
+    }
+}
 
 SITE_ID = 1
 
@@ -133,7 +158,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'project.wsgi.application'
-ASGI_APPLICATION = 'config.asgi.application'
+ASGI_APPLICATION = 'project.asgi.application'
 
 
 # Database
@@ -150,6 +175,7 @@ DATABASES = {
     }
 }
 
+# Channels
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, get_backends
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.views import PasswordChangeView
@@ -18,6 +18,11 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            
+            # Указываем backend явно
+            backend = get_backends()[0]
+            user.backend = f'{backend.__module__}.{backend.__class__.__name__}'
+            
             login(request, user)
             messages.success(request, 'Добро пожаловать в Central Perk!')
             return redirect('home')

@@ -64,7 +64,7 @@ class Quote(models.Model):
     
     def get_comments_count(self):
         """Возвращает количество комментариев"""
-        return self.comments.count()
+        return 0
     
     def is_liked_by_user(self, user):
         """Проверяет, лайкнул ли пользователь эту цитату"""

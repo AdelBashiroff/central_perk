@@ -74,3 +74,7 @@ class CustomUser(AbstractUser):
     def get_comments_count(self):
         """Возвращает количество комментариев, добавленных пользователем"""
         return self.comment_set.count()
+    
+    def get_unread_notifications_count(self):
+        """Возвращает количество непрочитанных уведомлений"""
+        return self.notifications.filter(is_read=False).count()

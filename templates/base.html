@@ -13,12 +13,31 @@
     
     <!-- Свои стили -->
     <style>
+        /* Sticky Footer */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        
         body {
-            background-color: #f8f0e3;  /* Уютный цвет Central Perk */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f0e3;
             font-family: 'Georgia', serif;
         }
+        
+        main {
+            flex: 1 0 auto;
+        }
+        
+        footer {
+            flex-shrink: 0;
+        }
+        
+        /* Остальные стили */
         .navbar {
-            background-color: black !important;  /* Кофейный цвет */
+            background-color: #6f4e37 !important;
         }
         .navbar-brand, .nav-link {
             color: #fff !important;
@@ -69,6 +88,14 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'discussions:list' %}">
                         <i class="bi bi-people"></i> Обсуждения
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'notifications:list' %}">
+                        <i class="bi bi-bell"></i> Уведомления
+                        {% if user.notifications.count > 0 %}
+                            <span class="badge bg-danger">{{ user.notifications.count }}</span>
+                        {% endif %}
                     </a>
                 </li>
             </ul>
@@ -127,7 +154,7 @@
 </main>
 
 <!-- Футер -->
-<footer class="bg-dark text-white text-center py-3 mt-5">
+<footer class="bg-dark text-white text-center py-3 mt-auto">
     <p class="mb-0">
         ☕ Central Perk — платформа для фанатов сериала "Друзья"
     </p>

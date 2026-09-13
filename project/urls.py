@@ -10,10 +10,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     # Все приложения с namespace
-    path('quotes/', include('quotes.urls')),         # quotes:list, quotes:detail
-    path('accounts/', include('accounts.urls')),     # accounts:login, accounts:register
-    path('discussions/', include('discussions.urls')), # discussions:list
+    path('quotes/', include('quotes.urls')),       
+    path('accounts/', include('accounts.urls')),    
+    path('discussions/', include('discussions.urls')), 
     path('accounts/', include('allauth.urls')),
+    path('notifications/', include('notifications.urls')),
     
     # API
     path('api/', include('api.urls')),

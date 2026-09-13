@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import DiscussionThread, Comment
 from .forms import DiscussionThreadForm, CommentForm
+from notifications.utils import send_notification
 
 
 def thread_list(request):
@@ -29,14 +30,23 @@ def thread_detail(request, pk):
     comments = thread.comments.filter(parent=None).order_by('created_at')
     
     # Форма для комментария
-    if request.method == 'POST' and request.user.is_authenticated:
+    if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
             comment = form.save(commit=False)
             comment.thread = thread
             comment.user = request.user
             comment.save()
-            messages.success(request, 'Комментарий добавлен!')
+            
+            # Уведомление автору темы
+            if thread.user != request.user:
+                send_notification(
+                    user=thread.user,
+                    notification_type='new_comment',
+                    message=f'{request.user.username} прокомментировал вашу тему',
+                    link=f'/discussions/{thread.pk}/'
+                )
+            
             return redirect('discussions:detail', pk=thread.pk)
     else:
         form = CommentForm()

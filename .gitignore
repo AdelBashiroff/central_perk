@@ -8,6 +8,7 @@ __pycache__/
 # Virtualenv
 venv/
 env/
+ENV/
 
 # Django
 *.log
@@ -18,7 +19,11 @@ staticfiles/
 # IDE
 .idea/
 .vscode/
+*.swp
 
 # Env
 .env
 .env.*
+
+# Docker
+.dockerignore
